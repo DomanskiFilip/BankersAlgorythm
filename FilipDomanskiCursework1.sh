@@ -1,37 +1,34 @@
 #!/bin/bash
 
-# validation functions used to validate inputs
-function validate_int {
+# Function to validate input as a positive integer
+validate_int() {
   local num="$1"
-  if [[ ! "$num" =~ ^[0-9]+$ ]]; then # check if input is a positive integer
-    return 1 # return 1 if not a positive integer
+  if [[ ! "$num" =~ ^[0-9]+$ ]]; then
+    return 1  # Failure
   fi
-  return 0 # return 0 if it is a positive integer
+  return 0  # Success
 }
-
-# input data:
-# input processes with validation:
-
+# --- Get the number of processes and resources ---
 while true; do
-  read -p "Provide number of processes: " Processes
+  read -p "Enter the number of processes: " Processes
   if validate_int "$Processes"; then
     break
   else
-    echo "Invalid input. Input must be a positive integer"
+    echo "Invalid input. Number of processes must be a positive integer."
   fi
 done
 
-# input resources with validation:
 while true; do
-  read -p "Provide number of resources: " Resources
+  read -p "Enter the number of resources: " Resources
   if validate_int "$Resources"; then
     break
   else
-    echo "Invalid input. Input must be a positive integer"
+    echo "Invalid input. Number of resources must be a positive integer."
   fi
 done
 
-# input available resources with validation
+
+# --- Available Resources ---
 while true; do
   read -p "Provide available resources (space-separated): " available_str
   available=($available_str)
@@ -39,123 +36,86 @@ while true; do
   if [[ ${#available[@]} -eq "$Resources" ]]; then
     break
   else
-    echo "Invalid input. Out of bounds"
+    echo "Invalid input. You must provide $Resources values (positive integers)."
   fi
 done
 
-# input data to maximum demand matrix with validation
-echo "Provide maximum demand matrix (space-separated): "
-max=() # Initialize max as an empty array
-for ((i=0; i < Processes; i++)); do
+
+# --- Maximum Demand Matrix ---
+max=()
+echo "Provide Maximum Demand Matrix (space-separated):"
+for ((i = 0; i < Processes; i++)); do
   while true; do
     read -p "Process $i: " row_str
     row=($row_str)
-
     if [[ ${#row[@]} -eq "$Resources" ]]; then
-      max+=("(${row[@]})") # Append row as a tuple to max
+      max[i]=("${row[@]}")
       break
     else
-      echo "Invalid input. Out of bounds"
+      echo "Invalid input. You must provide $Resources values (positive integers)."
     fi
   done
 done
 
-# display maximum demand matrix
 echo "Maximum Demand Matrix:"
-
-echo -n "  " # Add space for alignment
-for ((i=0; i < Resources; i++)); do
-  echo -n "R$i "
-done
-echo
-
+echo -n "PR "
+for ((i = 0; i < Resources; i++)); do echo -n "R$i "; done; echo ""
 for ((j = 0; j < Processes; j++)); do
   echo -n "P$j "
-  # Access the tuple and print its elements
-  for value in "${max[j]}"; do
-    # Remove parentheses and print the value
-    value="${value//[()]/}"
-    echo -n "$value "
-  done
-  echo
+  for value in "${max[j][@]}"; do echo -n "$value "; done; echo ""
 done
 
-# input data to allocation matrix with validation
-read -p "Provide allocation matrix (space-separated): " allocation_str
-allocation=($allocation_str)
 
-for ((i=0; i < Processes; i++)); do
+# --- Allocation Matrix ---
+allocation=()
+echo "Provide Allocation Matrix (space-separated):"
+for ((i = 0; i < Processes; i++)); do
   while true; do
     read -p "Process $i: " row_str
     row=($row_str)
-
     if [[ ${#row[@]} -eq "$Resources" ]]; then
-      allocation+=("(${row[@]})") # Append row as a tuple to allocation
+      allocation[i]=("${row[@]}")
       break
     else
-      echo "Invalid input. Out of bounds"
+      echo "Invalid input. You must provide $Resources values (positive integers)."
     fi
   done
 done
 
-# display allocation matrix
 echo "Allocation Matrix:"
-
-echo -n "  " # Add space for alignment
-for ((i=0; i < Resources; i++)); do
-  echo -n "R$i "
-done
-echo
-
+echo -n "PR "
+for ((i = 0; i < Resources; i++)); do echo -n "R$i "; done; echo ""
 for ((j = 0; j < Processes; j++)); do
   echo -n "P$j "
-  # Access the tuple and print its elements
-  for value in "${allocation[j]}"; do
-    # Remove parentheses and print the value
-    value="${value//[()]/}"
-    echo -n "$value "
-  done
-  echo
+  for value in "${allocation[j][@]}"; do echo -n "$value "; done; echo ""
 done
 
-# resource needs with validation
-echo "Provide needed resources matrix (space-separated):"
 
-declare -a need # Declare 'need' as an array
-
-for ((i=0; i < Processes; i++)); do
+# --- Need Matrix ---
+need=()
+echo "Provide Needed Resources Matrix (space-separated):"
+for ((i = 0; i < Processes; i++)); do
   while true; do
     read -p "Process $i: " row_str
     row=($row_str)
-
     if [[ ${#row[@]} -eq "$Resources" ]]; then
-      need+=("(${row[@]})") # Append row as a tuple to need
+      need[i]=("${row[@]}")
       break
     else
-      echo "Invalid Input. Input must be a positive integer"
+      echo "Invalid input. You must provide $Resources values (positive integers)."
     fi
   done
 done
 
-# display need matrix
-echo "Need Matrix"
-
-echo -n "  " # Add space for alignment
-for ((i=0; i < Resources; i++)); do
-  echo -n "R$i "
-done
-echo
-
+echo "Need Matrix:"
+echo -n "PR "
+for ((i = 0; i < Resources; i++)); do echo -n "R$i "; done; echo ""
 for ((j = 0; j < Processes; j++)); do
   echo -n "P$j "
-  # Access the tuple and print its elements
-  for value in "${need[j]}"; do
-    # Remove parentheses and print the value
-    value="${value//[()]/}"
-    echo -n "$value "
-  done
-  echo
+  for value in "${need[j][@]}"; do echo -n "$value "; done; echo ""
 done
+
+# ... (rest of your Banker's Algorithm code) ...
 
 # Safety Needs section
 echo "Safety needs"
