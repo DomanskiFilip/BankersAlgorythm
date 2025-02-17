@@ -43,16 +43,17 @@ done
 
 
 # input data to maximum demand matrix with validation
-read -p "provide maximum demand matrix (space-separated): " max_str
-max=($max_str)
+echo "provide maximum demand matrix: "
+declare -a max
 for ((i = 0; i < Processes; i++)); do
     while true; do
-        read -p "Process $i: " row
+        read -p "Process $i: " row_str
+        row=($row_str)
         if [[ ${#row[@]} -eq "$Resources" ]]; then
-        max[i]="${row[@]}"
-        break
-    else
-        echo "invalid input. out of bounds"
+            max[i]="${row[@]}"
+            break
+        else
+            echo "invalid input. out of bounds"
         fi
     done
 done
@@ -71,20 +72,20 @@ echo ""
 done
 
 # input data to allocation matrix with validation
-read -p "provide allocation matrix (space-separated): " allocation_str
-allocation=($allocation_str)
+echo "provide allocation matrix: "
+declare -a allocation
 for ((i = 0; i < Processes; i++)); do
     while true; do
-        read -p "Process $i: " row
+        read -p "Process $i: " row_str
+        row=($row_str)
         if [[ ${#row[@]} -eq "$Resources" ]]; then
-        allocation[i]="${row[@]}"
-        break
-    else
-        echo "invalid input. out of bounds"
+            allocation[i]="${row[@]}"
+            break
+        else
+            echo "invalid input. out of bounds"
         fi
     done
 done
-
 
 # display allocation matrix
 echo "Allocation Matrix: "
@@ -96,7 +97,7 @@ for ((j = 0; j < Processes; j++)); do
     for value in ${allocation[j]}; do
         echo -n " $value|"
     done
-echo""
+    echo ""
 done
 
 # resource needs with validation
@@ -104,12 +105,13 @@ echo "provide needed resources matrix (space-separated): "
 declare -a need
 for ((i = 0; i < Processes; i++)); do
     while true; do
-        read -p "Process $i: " row
-        if [[ "${#row[@]}" -eq "$Resources" ]] && validate_row "${row[@]}"; then        
-        need[$i]="${row[@]}"
-        break
-    else
-        echo "invalid input. input must be a positive integer"
+        read -p "Process $i: " row_str
+        row=($row_str)
+        if [[ ${#row[@]} -eq "$Resources" ]]; then        
+            need[i]="${row[@]}"
+            break
+        else
+            echo "invalid input. input must be a positive integer"
         fi
     done
 done
@@ -122,14 +124,12 @@ echo ""
 for ((j = 0; j < Processes; j++)); do
     echo -n "P$j|"
     for value in ${need[j]}; do
-        echo -n "$value|"
+        echo -n " $value|"
     done
-echo ""
+    echo ""
 done
 
 # Safety Needs section
-
-echo "Safety needs"
 function check_safety {
     local work=(${available[@]})
     local finish=()
