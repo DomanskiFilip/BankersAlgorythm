@@ -214,10 +214,10 @@ while true; do
 
         # Update need matrix for the new process
         for (( j = 0; j < Resources; j++ )); do
-        max_val=$(echo ${max[$(($Processes-1))]} | cut -d ' ' -f $((j+1)))
-                alloc_val=$(echo ${allocation[$(($Processes-1))]} | cut -d ' ' -f $((j+1)))
-               needs[$(($Processes-1))]+="$(($max_val - $alloc_val))"
-        done    
+            max_val=$(echo ${max[$(($Processes-1))]} | cut -d ' ' -f $((j+1)))
+            alloc_val=$(echo ${allocation[$(($Processes-1))]} | cut -d ' ' -f $((j+1)))
+            needs[$(($Processes-1))]+="$(($max_val - $alloc_val)) "
+        done 
 
         # Run safety check again
         check_safety || exit 1
